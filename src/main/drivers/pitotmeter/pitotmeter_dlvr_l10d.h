@@ -17,14 +17,4 @@
 
 #pragma once
 
-typedef enum {
-    FRSKY_VFAS_PRECISION_LOW = 0,
-    FRSKY_VFAS_PRECISION_HIGH
-} frskyVFasPrecision_e;
-
-void handleFrSkyTelemetry(void);
-void checkFrSkyTelemetryState(void);
-
-void initFrSkyTelemetry(void);
-void configureFrSkyTelemetryPort(void);
-void freeFrSkyTelemetryPort(void);
+bool dlvrDetect(pitotDev_t *pitot);

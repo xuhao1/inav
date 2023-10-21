@@ -96,6 +96,7 @@
 #include "flight/power_limits.h"
 #include "flight/rpm_filter.h"
 #include "flight/servos.h"
+#include "flight/ez_tune.h"
 
 #include "io/asyncfatfs/asyncfatfs.h"
 #include "io/beeper.h"
@@ -119,6 +120,7 @@
 #include "io/vtx_control.h"
 #include "io/vtx_smartaudio.h"
 #include "io/vtx_tramp.h"
+#include "io/vtx_msp.h"
 #include "io/vtx_ffpv24g.h"
 #include "io/piniobox.h"
 
@@ -174,7 +176,7 @@ void flashLedsAndBeep(void)
         LED1_TOGGLE;
         LED0_TOGGLE;
         delay(25);
-        if (!(getPreferredBeeperOffMask() & (1 << (BEEPER_SYSTEM_INIT - 1))))
+        if (!(getBeeperOffMask() & (1 << (BEEPER_SYSTEM_INIT - 1))))
             BEEP_ON;
         delay(25);
         BEEP_OFF;
@@ -303,9 +305,7 @@ void init(void)
 
     // Initialize servo and motor mixers
     // This needs to be called early to set up platform type correctly and count required motors & servos
-    servosInit();
-    mixerUpdateStateFlags();
-    mixerInit();
+    mixerConfigInit();
 
     // Some sanity checking
     if (motorConfig()->motorPwmProtocol == PWM_TYPE_BRUSHED) {
@@ -516,6 +516,10 @@ void init(void)
     owInit();
 #endif
 
+#ifdef USE_EZ_TUNE
+    ezTuneUpdate();
+#endif
+
     if (!sensorsAutodetect()) {
         // if gyro was not detected due to whatever reason, we give up now.
         failureMode(FAILURE_MISSING_ACC);
@@ -663,6 +667,10 @@ void init(void)
 
 #ifdef USE_VTX_FFPV
     vtxFuriousFPVInit();
+#endif
+
+#ifdef USE_VTX_MSP
+    vtxMspInit();
 #endif
 
 #endif // USE_VTX_CONTROL
